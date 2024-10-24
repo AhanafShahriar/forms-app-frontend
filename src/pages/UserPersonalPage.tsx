@@ -10,7 +10,7 @@ interface FilledForm {
   id: number;
   templateTitle: string;
 }
-
+const apiUrl = process.env.API_URL;
 const UserPersonalPage: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [filledForms, setFilledForms] = useState<FilledForm[]>([]);
@@ -21,18 +21,21 @@ const UserPersonalPage: React.FC = () => {
       try {
         const token = localStorage.getItem("token"); // Retrieve token from localStorage or wherever you're storing it
         const templatesResponse = await axios.get<Template[]>(
-          "/user/templates",
+          `${apiUrl}/user/templates`,
           {
             headers: {
               Authorization: `Bearer ${token}`, // Use the token here
             },
           }
         );
-        const formsResponse = await axios.get<FilledForm[]>("/user/forms", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Include the token for filled forms as well
-          },
-        });
+        const formsResponse = await axios.get<FilledForm[]>(
+          `${apiUrl}/user/forms`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Include the token for filled forms as well
+            },
+          }
+        );
         setTemplates(templatesResponse.data);
         setFilledForms(formsResponse.data);
       } catch (err) {

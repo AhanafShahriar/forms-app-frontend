@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-
+const apiUrl = process.env.API_URL;
 interface Template {
   id: number; // Adjust the type based on your schema
   title: string;
@@ -19,9 +19,12 @@ const SearchResults: React.FC = () => {
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get<Template[]>(`/templates/search`, {
-          params: { query },
-        });
+        const response = await axios.get<Template[]>(
+          `${apiUrl}/templates/search`,
+          {
+            params: { query },
+          }
+        );
         setTemplates(response.data);
       } catch (error) {
         console.error("Error fetching search results:", error);

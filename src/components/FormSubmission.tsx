@@ -7,7 +7,7 @@ interface Template {
   title: string;
   questions: { id: number; question: string }[];
 }
-
+const apiUrl = process.env.API_URL;
 const FormSubmission: React.FC = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [template, setTemplate] = useState<Template | null>(null);
@@ -20,7 +20,7 @@ const FormSubmission: React.FC = () => {
     const fetchTemplate = async () => {
       try {
         const response = await axios.get<Template>(
-          `/api/templates/${templateId}`
+          `${apiUrl}/api/templates/${templateId}`
         );
         setTemplate(response.data);
         setAnswers(
@@ -48,7 +48,7 @@ const FormSubmission: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      await axios.post("/api/forms", { templateId, answers });
+      await axios.post(`${apiUrl}/api/forms`, { templateId, answers });
       alert("Form submitted successfully!");
       navigate("/user/personal");
     } catch (error) {

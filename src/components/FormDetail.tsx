@@ -12,7 +12,7 @@ interface FilledForm {
   answers: Answer[];
   user: { username: string };
 }
-
+const apiUrl = process.env.API_URL;
 const FormDetail: React.FC = () => {
   const { formId } = useParams<{ formId: string }>();
   const navigate = useNavigate();
@@ -21,7 +21,9 @@ const FormDetail: React.FC = () => {
   useEffect(() => {
     const fetchFilledFormDetails = async () => {
       try {
-        const response = await axios.get<FilledForm>(`/api/forms/${formId}`);
+        const response = await axios.get<FilledForm>(
+          `${apiUrl}/api/forms/${formId}`
+        );
         setFilledForm(response.data);
       } catch (error) {
         console.error("Error fetching filled form details:", error);
@@ -33,7 +35,7 @@ const FormDetail: React.FC = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/forms/${formId}`);
+      await axios.delete(`${apiUrl}/api/forms/${formId}`);
       alert("Form deleted successfully.");
       navigate("/user/forms"); // Redirect to user's filled forms page
     } catch (error) {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
-
+const apiUrl = process.env.API_URL;
 interface FilledForm {
   id: number;
   answers: { questionId: number; value: string }[];
@@ -16,7 +16,7 @@ const FormList: React.FC = () => {
     const fetchFilledForms = async () => {
       try {
         const response = await axios.get<FilledForm[]>(
-          `/api/forms/template/${templateId}`
+          `${apiUrl}/api/forms/template/${templateId}`
         );
         setFilledForms(response.data);
       } catch (error) {
@@ -29,7 +29,7 @@ const FormList: React.FC = () => {
 
   const handleDelete = async (formId: number) => {
     try {
-      await axios.delete(`/api/forms/${formId}`);
+      await axios.delete(`${apiUrl}/api/forms/${formId}`);
       setFilledForms((prev) => prev.filter((form) => form.id !== formId)); // Remove deleted form from state
     } catch (error) {
       console.error("Error deleting form:", error);

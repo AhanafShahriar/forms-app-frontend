@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
   return (
     <nav className='flex items-center justify-between p-4 bg-blue-600 text-white'>
       <div className='text-lg font-bold'>
-        <Link to='/'>YourAppName</Link>
+        <Link to='/'>FormsApp</Link>
       </div>
       <div className='flex items-center'>
         <SearchBar />

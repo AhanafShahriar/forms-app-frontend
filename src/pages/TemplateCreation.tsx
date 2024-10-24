@@ -8,6 +8,7 @@ import { DropResult } from "react-beautiful-dnd";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+const apiUrl = process.env.API_URL;
 type Tag = { name: string };
 const predefinedTopics = ["Education", "Quiz", "Other"]; // Add more topics as needed
 
@@ -66,7 +67,7 @@ const TemplateCreation = () => {
   // Fetch tags
   const fetchTags = async () => {
     try {
-      const response = await axios.get<Tag[]>("/templates/tags");
+      const response = await axios.get<Tag[]>(`${apiUrl}/templates/tags`);
       setAllTags(response.data.map((tag) => tag.name));
     } catch (error) {
       console.error("Error fetching tags:", error);
@@ -82,7 +83,7 @@ const TemplateCreation = () => {
     setErrorUsers(null);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get<User[]>("/admin/users", {
+      const response = await axios.get<User[]>(`${apiUrl}/admin/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -162,7 +163,7 @@ const TemplateCreation = () => {
     };
     console.log("Template data being sent:", templateData);
     try {
-      await axios.post("/templates", templateData, {
+      await axios.post(`${apiUrl}/templates`, templateData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

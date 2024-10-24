@@ -36,13 +36,17 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(false); // State to trigger refresh
   const navigate = useNavigate();
-
+  const apiUrl = process.env.API_URL;
   const fetchTemplatesAndTags = async () => {
     setLoading(true);
     try {
-      const latestResponse = await axios.get<Template[]>("/templates/latest");
-      const popularResponse = await axios.get<Template[]>("/templates/popular");
-      const tagsResponse = await axios.get<Tag[]>("/templates/tags");
+      const latestResponse = await axios.get<Template[]>(
+        `${apiUrl}/templates/latest`
+      );
+      const popularResponse = await axios.get<Template[]>(
+        `${apiUrl}/templates/popular`
+      );
+      const tagsResponse = await axios.get<Tag[]>(`${apiUrl}/templates/tags`);
 
       setLatestTemplates(latestResponse.data);
       setPopularTemplates(popularResponse.data);

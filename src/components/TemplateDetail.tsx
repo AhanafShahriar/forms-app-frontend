@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-
+const apiUrl = process.env.API_URL;
 const TemplateDetail = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [template, setTemplate] = useState<any>(null);
@@ -10,7 +10,7 @@ const TemplateDetail = () => {
 
   const fetchTemplate = async () => {
     try {
-      const response = await axios.get(`/templates/${templateId}`);
+      const response = await axios.get(`${apiUrl}/templates/${templateId}`);
       setTemplate(response.data);
     } catch (err) {
       setError("Error fetching template details.");

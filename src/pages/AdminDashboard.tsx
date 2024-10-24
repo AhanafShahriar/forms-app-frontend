@@ -18,14 +18,14 @@ const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-
+  const apiUrl = process.env.API_URL;
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     const fetchUsersAndTemplates = async () => {
       try {
         // Fetch users
-        const usersResponse = await axios.get<User[]>("/admin/users", {
+        const usersResponse = await axios.get<User[]>(`${apiUrl}/admin/users`, {
           headers: {
             Authorization: `Bearer ${token}`, // Pass the token here
           },
@@ -33,15 +33,18 @@ const AdminDashboard: React.FC = () => {
         setUsers(usersResponse.data);
 
         // Fetch templates
-        const templatesResponse = await axios.get<Template[]>("/templates", {
-          headers: {
-            Authorization: `Bearer ${token}`, // Pass the token here as well
-          },
-        });
+        const templatesResponse = await axios.get<Template[]>(
+          `${apiUrl}/templates`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Pass the token here as well
+            },
+          }
+        );
         setTemplates(templatesResponse.data);
 
         // Fetch current user
-        const currentUserResponse = await axios.get<User>("/auth/me", {
+        const currentUserResponse = await axios.get<User>(`${apiUrl}/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`, // Pass the token here
           },

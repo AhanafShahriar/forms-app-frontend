@@ -10,7 +10,7 @@ interface Template {
   topic: string;
   tags: { name: string }[]; // Assuming tags are objects with a 'name' property
 }
-
+const apiUrl = process.env.API_URL;
 const TemplateEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [template, setTemplate] = useState<Template | null>(null); // Update the state type
@@ -23,7 +23,7 @@ const TemplateEdit: React.FC = () => {
     const fetchTemplate = async () => {
       try {
         // Use the Template type for the Axios response
-        const response = await axios.get<Template>(`/templates/${id}`);
+        const response = await axios.get<Template>(`${apiUrl}/templates/${id}`);
         setTemplate(response.data);
         setTitle(response.data.title);
         setDescription(response.data.description);
@@ -41,7 +41,7 @@ const TemplateEdit: React.FC = () => {
     e.preventDefault();
 
     try {
-      await axios.put(`/api/templates/${id}`, {
+      await axios.put(`{apiUrl}/api/templates/${id}`, {
         title,
         description,
         topic,

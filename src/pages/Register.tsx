@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+const apiUrl = process.env.API_URL;
 const Register: React.FC = () => {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState(""); // New state for email
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -12,8 +13,8 @@ const Register: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("/auth/register", { name, email, password }); // Include email in the request
-      navigate("/login"); // Redirect to login after successful registration
+      await axios.post(`${apiUrl}/auth/registe`, { name, email, password });
+      navigate("/login");
     } catch (err) {
       setError("Registration failed");
     }
@@ -34,7 +35,7 @@ const Register: React.FC = () => {
             className='border border-gray-300 p-2 rounded w-full mb-2'
           />
           <input
-            type='email' // Change type to email
+            type='email'
             placeholder='Email'
             value={email}
             onChange={(e) => setEmail(e.target.value)}

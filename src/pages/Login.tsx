@@ -14,7 +14,7 @@ interface LoginResponse {
   token: string;
   user: User;
 }
-
+const apiUrl = process.env.API_URL;
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post<LoginResponse>("/auth/login", {
+      const response = await axios.post<LoginResponse>(`${apiUrl}/auth/login`, {
         email,
         password,
       });
