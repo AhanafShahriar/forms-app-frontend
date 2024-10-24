@@ -14,7 +14,7 @@ interface LoginResponse {
   token: string;
   user: User;
 }
-const apiUrl = process.env.API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

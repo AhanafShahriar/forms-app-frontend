@@ -27,7 +27,7 @@ interface Tag {
   id: string;
   name: string;
 }
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const HomePage: React.FC = () => {
   const [latestTemplates, setLatestTemplates] = useState<Template[]>([]);
   const [popularTemplates, setPopularTemplates] = useState<Template[]>([]);
@@ -36,7 +36,7 @@ const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(false); // State to trigger refresh
   const navigate = useNavigate();
-  const apiUrl = process.env.API_URL;
+
   const fetchTemplatesAndTags = async () => {
     setLoading(true);
     try {

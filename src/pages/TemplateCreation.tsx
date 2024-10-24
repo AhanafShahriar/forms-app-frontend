@@ -8,10 +8,10 @@ import { DropResult } from "react-beautiful-dnd";
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const apiUrl = process.env.API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
 type Tag = { name: string };
 const predefinedTopics = ["Education", "Quiz", "Other"]; // Add more topics as needed
-
+console.log(apiUrl);
 const TemplateCreation = () => {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
@@ -103,6 +103,7 @@ const TemplateCreation = () => {
     if (currentUser) {
       setUserName(currentUser.name);
     }
+    console.log(apiUrl);
   }, [currentUser]);
 
   // Handle drag-and-drop of questions

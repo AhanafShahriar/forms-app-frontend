@@ -13,12 +13,12 @@ interface Template {
   title: string;
   author: string;
 }
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const AdminDashboard: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const apiUrl = process.env.API_URL;
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 

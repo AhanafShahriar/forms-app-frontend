@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-const apiUrl = process.env.API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const TemplateDetail = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [template, setTemplate] = useState<any>(null);

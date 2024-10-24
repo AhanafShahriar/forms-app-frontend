@@ -7,7 +7,8 @@ interface Template {
   title: string;
   questions: { id: number; question: string }[];
 }
-const apiUrl = process.env.API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const FormSubmission: React.FC = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [template, setTemplate] = useState<Template | null>(null);

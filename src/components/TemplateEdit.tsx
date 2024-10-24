@@ -10,7 +10,8 @@ interface Template {
   topic: string;
   tags: { name: string }[]; // Assuming tags are objects with a 'name' property
 }
-const apiUrl = process.env.API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
+
 const TemplateEdit: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [template, setTemplate] = useState<Template | null>(null); // Update the state type
