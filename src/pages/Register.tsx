@@ -13,7 +13,7 @@ const Register: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`${apiUrl}/auth/registe`, { name, email, password });
+      await axios.post(`${apiUrl}/auth/register`, { name, email, password });
       navigate("/login");
     } catch (err) {
       setError("Registration failed");

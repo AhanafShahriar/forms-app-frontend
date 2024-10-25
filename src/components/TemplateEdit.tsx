@@ -18,7 +18,7 @@ interface Template {
   questions: Question[];
   isPublic: boolean;
 }
-const apiUrl = process.env.REACT_API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
 const TemplateEdit = () => {
   const { id } = useParams<{ id: string }>();
   const { currentUser } = useAuth();

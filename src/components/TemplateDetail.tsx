@@ -34,7 +34,7 @@ interface Template {
   users: { id: string; name: string }[];
   imageUrl?: string;
 }
-const apiUrl = process.env.REACT_API_URL;
+const apiUrl = process.env.REACT_APP_API_URL;
 const TemplateDetail = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const { currentUser } = useAuth();
