@@ -4,7 +4,7 @@ import axios from "axios";
 import TagsInput from "../components/TagsInput";
 import UserSelection, { User } from "../components/UserSelection";
 import QuestionManager, { Question } from "../components/QuestionManager";
-import { DropResult } from "react-beautiful-dnd";
+
 import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 

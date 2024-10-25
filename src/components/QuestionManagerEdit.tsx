@@ -6,21 +6,27 @@ export type QuestionType =
   | "MULTI_LINE"
   | "INTEGER"
   | "CHECKBOX";
+export type Option = {
+  id: string;
+  value: string;
+};
 export type Question = {
   id: string;
   title: string;
   description: string;
   type: QuestionType;
   displayedInTable: boolean;
-  options?: string[];
+  options?: Option[];
 };
+
 type QuestionManagerProps = {
   questions: Question[];
   onAddQuestion: (q: Question) => void;
   onDeleteQuestion: (id: string) => void;
   onQuestionChange: (id: string, field: keyof Question, value: any) => void;
 };
-const QuestionManager: React.FC<QuestionManagerProps> = ({
+
+const QuestionManagerEdit: React.FC<QuestionManagerProps> = ({
   questions,
   onAddQuestion,
   onDeleteQuestion,
@@ -37,6 +43,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     };
     onAddQuestion(newQuestion);
   };
+
   return (
     <div className='space-y-4'>
       {questions.map((q) => (
@@ -52,6 +59,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               maxLength={50}
               aria-label='Question Title'
             />
+
             <select
               value={q.type}
               onChange={(e) => onQuestionChange(q.id, "type", e.target.value)}
@@ -62,6 +70,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               <option value='INTEGER'>Integer</option>
               <option value='CHECKBOX'>Checkbox</option>
             </select>
+
             <button
               onClick={() => onDeleteQuestion(q.id)}
               className='text-red-500 font-bold'
@@ -69,6 +78,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               <FontAwesomeIcon icon={faTrashAlt} />
             </button>
           </div>
+
           {/* Description Input (Prompt) */}
           {q.type === "SINGLE_LINE" ? (
             <input
@@ -93,6 +103,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               aria-label='Question Description'
             />
           )}
+
           {/* Dynamic Input Preview Based on Question Type */}
           {q.type === "SINGLE_LINE" && (
             <input
@@ -103,6 +114,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               aria-label='Single-line Answer Preview'
             />
           )}
+
           {q.type === "MULTI_LINE" && (
             <textarea
               placeholder='Multi-line Answer Preview'
@@ -112,6 +124,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               aria-label='Multi-line Answer Preview'
             />
           )}
+
           {q.type === "INTEGER" && (
             <input
               type='number'
@@ -121,49 +134,39 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               aria-label='Integer Answer Preview'
             />
           )}
-          {q.type === "CHECKBOX" && (
-            <div>
-              <p className='font-semibold'>Checkbox Options:</p>
-              {q.options?.map((option, index) => (
-                <div
-                  key={index}
-                  className='flex items-center space-x-2'>
-                  <span className='text-lg'>☐️</span>
-                  <input
-                    type='text'
-                    value={option}
-                    onChange={(e) => {
-                      const updatedOptions = [...(q.options || [])];
-                      updatedOptions[index] = e.target.value;
-                      onQuestionChange(q.id, "options", updatedOptions);
-                    }}
-                    placeholder='Option'
-                    className='p-2 border-t-0 border-r-0 border-l-0 rounded-lg w-full'
-                    aria-label={`Option ${index + 1}`}
-                  />
-                  <button
-                    onClick={() => {
-                      const updatedOptions = q.options?.filter(
-                        (_, i) => i !== index
-                      );
-                      onQuestionChange(q.id, "options", updatedOptions);
-                    }}
-                    className='text-red-500 font-bold'
-                    aria-label='Remove Option'>
-                    Remove
-                  </button>
-                </div>
-              ))}
+
+          {q.options?.map((option, index) => (
+            <div
+              key={index}
+              className='flex items-center space-x-2'>
+              <span className='text-lg'>☐️</span>
+              <input
+                type='text'
+                value={option.value} // Access the value property of the option object
+                onChange={(e) => {
+                  const updatedOptions = [...(q.options || [])];
+                  updatedOptions[index] = {
+                    ...updatedOptions[index],
+                    value: e.target.value,
+                  }; // Update the value field
+                  onQuestionChange(q.id, "options", updatedOptions);
+                }}
+                placeholder='Option'
+                className='p-2 border-t-0 border-r-0 border-l-0 rounded-lg w-full'
+              />
               <button
-                onClick={() =>
-                  onQuestionChange(q.id, "options", [...(q.options || []), ""])
-                }
-                className='text-green-500 font-bold mt-2'
-                aria-label='Add Option'>
-                Add Option
+                onClick={() => {
+                  const updatedOptions = q.options?.filter(
+                    (_, i) => i !== index
+                  );
+                  onQuestionChange(q.id, "options", updatedOptions);
+                }}
+                className='text-red-500 font-bold'>
+                Remove
               </button>
             </div>
-          )}
+          ))}
+
           <label className='flex items-center space-x-2'>
             <input
               type='checkbox'
@@ -177,6 +180,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
           </label>
         </div>
       ))}
+
       <button
         onClick={handleAddQuestion}
         className='mt-2 p-2 bg-blue-500 text-white font-bold rounded-lg w-full'
@@ -186,4 +190,5 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     </div>
   );
 };
-export default QuestionManager;
+
+export default QuestionManagerEdit;

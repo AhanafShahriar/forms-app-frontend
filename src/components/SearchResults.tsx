@@ -1,180 +1,81 @@
-import React, { useEffect, useState } from "react";
+// SearchResults.tsx
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useParams, useNavigate } from "react-router-dom";
-import Comments from "./Comments";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart as solidHeart } from "@fortawesome/free-solid-svg-icons";
-import { faHeart as regularHeart } from "@fortawesome/free-regular-svg-icons";
-import { useAuth } from "../contexts/AuthContext";
-
-// Define the Template and Option types
-interface Option {
-  id: string;
-  value: string;
-}
-
-interface Question {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  options?: Option[];
-}
 
 interface Template {
-  id: string;
+  id: number; // Adjust the type based on your schema
   title: string;
   description: string;
-  author: { id: string; name: string };
-  createdAt: string;
-  topic: string;
-  tags: { name: string }[];
-  questions: Question[];
-  likes: { id: string; userId: string }[];
-  users: { id: string; name: string }[];
-  imageUrl?: string;
+  author?: {
+    name?: string;
+  };
+  // Add any other fields you expect from the API response
 }
-const apiUrl = process.env.REACT_APP_API_URL;
-const TemplateDetail = () => {
-  const { templateId } = useParams<{ templateId: string }>();
-  const { currentUser } = useAuth();
-  const [template, setTemplate] = useState<Template | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [liked, setLiked] = useState(false);
+
+const SearchResults: React.FC = () => {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [noResults, setNoResults] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true); // Loading state
+
+  const query = searchParams.get("query") || searchParams.get("tag");
 
   useEffect(() => {
-    const fetchTemplate = async () => {
+    const fetchTemplates = async () => {
       try {
-        const response = await axios.get<Template>(
-          `${apiUrl}/templates/${templateId}`
-        );
-        console.log("Fetched template data:", response.data);
-        setTemplate(response.data);
-      } catch (err) {
-        setError("Error fetching template details.");
+        const response = await axios.get<Template[]>(`/templates/search`, {
+          params: { query },
+        });
+        setTemplates(response.data);
+
+        // If no templates are found, wait for 10 seconds before showing the message
+        if (response.data.length === 0) {
+          setTimeout(() => {
+            setNoResults(true);
+          }, 10000); // 10 seconds
+        } else {
+          setNoResults(false); // Reset noResults if templates are found
+        }
+      } catch (error) {
+        console.error("Error fetching search results:", error);
       } finally {
-        setLoading(false);
+        setLoading(false); // Set loading to false after fetching
       }
     };
 
-    if (templateId) {
-      fetchTemplate();
-    }
-  }, [templateId]);
+    fetchTemplates();
+  }, [query]);
 
-  const handleLike = async () => {
-    try {
-      await axios.post(`${apiUrl}/templates/${templateId}/like`);
-      setLiked(!liked);
-    } catch (error) {
-      console.error("Error liking template:", error);
-    }
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p className='text-red-500'>{error}</p>;
-
-  if (!template) {
-    return <p>No template found.</p>;
+  if (loading) {
+    return <div className='mt-5 ml-5'>Loading...</div>; // Optionally show a loading message
   }
 
-  const totalLikes = template.likes ? template.likes.length : 0;
-  const isAuthor = currentUser && currentUser.id === template.author.id;
+  if (noResults) {
+    return <div className='mt-5 ml-5'>No templates found for "{query}".</div>;
+  }
 
   return (
-    <div className='max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg'>
-      <h1 className='text-xl text-center font-bold mb-4'>{template.title}</h1>
-
-      {error && <p className='text-red-500'>{error}</p>}
-      <p className='text-lg mb-2'>{template.description}</p>
-      <p className='font-semibold'>Author: {template.author.name}</p>
-      <p className='font-semibold'>
-        Created At: {new Date(template.createdAt).toLocaleDateString()}
-      </p>
-      <p className='font-semibold'>Topic: {template.topic}</p>
-      <p className='font-semibold'>
-        Tags:{" "}
-        {template.tags
-          ? template.tags.map((tag: { name: string }) => tag.name).join(", ")
-          : "No tags"}
-      </p>
-      <p className='font-semibold'>
-        Users:{" "}
-        {template.users
-          ? template.users.map((user: any) => user.name).join(", ")
-          : "No users"}
-      </p>
-
-      <h2 className='text-xl font-semibold mt-4'>Questions</h2>
-      <ul className='list-disc pl-5 mb-4'>
-        {template.questions && template.questions.length > 0 ? (
-          template.questions.map((question: Question) => (
-            <li key={question.id}>
-              <strong>{question.title}</strong>: {question.description}
-              {question.type === "CHECKBOX" &&
-                question.options && ( // Change to "CHECKBOX"
-                  <div className='mt-2'>
-                    {question.options.map((option: Option) => (
-                      <label
-                        key={option.id}
-                        className='block'>
-                        <input
-                          type='checkbox'
-                          disabled
-                          className='mr-2'
-                        />
-                        {option.value}
-                      </label>
-                    ))}
-                  </div>
-                )}
-            </li>
-          ))
-        ) : (
-          <li>No questions available.</li>
-        )}
-      </ul>
-
-      {template.imageUrl && (
-        <img
-          src={template.imageUrl}
-          alt='Template'
-          className='mt-4 w-full h-64 object-cover rounded-md'
-        />
-      )}
-
-      <p className='font-semibold mt-4'>Total Likes: {totalLikes}</p>
-
-      <button
-        className={`flex items-center space-x-2 bg-blue-500 hover:bg-blue-700 text-white font-bold text-sm py-1 px-2 rounded mt-4 ${
-          liked ? "bg-green-500 hover:bg-green-700" : ""
-        }`}
-        onClick={handleLike}>
-        <FontAwesomeIcon
-          icon={liked ? solidHeart : regularHeart}
-          className='h-4 w-4'
-        />
-        <span>{liked ? "Unlike" : "Like"}</span>
-      </button>
-
-      {isAuthor && (
-        <button
-          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4'
-          onClick={() => navigate(`/templates/edit/${templateId}`)}>
-          Edit Template
-        </button>
-      )}
-
-      {templateId && (
-        <Comments
-          templateId={templateId}
-          currentUser={currentUser}
-        />
-      )}
+    <div className='space-y-4 ml-5 mt-5'>
+      <h2 className='text-xl font-semibold mb-4'>
+        Search Results for "{query}"
+      </h2>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+        {templates.map((template) => (
+          <div
+            key={template.id}
+            className='border p-4 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer'
+            onClick={() => navigate(`/templates/${template.id}`)}>
+            <h3 className='font-bold text-blue-600 hover:underline'>
+              {template.title || "No Title"}
+            </h3>
+            <p>{template.description || "No Description"}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
 
-export default TemplateDetail;
+export default SearchResults;

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TagsInput from "../components/TagsInput";
-import QuestionManager, { Question } from "../components/QuestionManager";
+import QuestionManager, { Question } from "../components/QuestionManagerEdit";
 
 const predefinedTopics = ["Education", "Quiz", "Other"];
 
