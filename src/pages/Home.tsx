@@ -1,154 +1,140 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom"; // Import for navigation
-import TemplateCreation from "./TemplateCreation";
-
-interface Author {
-  id: string;
-  email: string;
-  name: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  language: string;
-  theme: string;
-}
+import { useNavigate } from "react-router-dom";
 
 interface Template {
-  id: string;
+  id: number;
   title: string;
-  description: string;
-  author: Author;
-  image: string | null;
-  filledCount: number;
 }
 
-interface Tag {
-  id: string;
-  name: string;
+interface FilledForm {
+  id: number;
+  templateTitle: string;
 }
 const apiUrl = process.env.REACT_APP_API_URL;
-const HomePage: React.FC = () => {
-  const [latestTemplates, setLatestTemplates] = useState<Template[]>([]);
-  const [popularTemplates, setPopularTemplates] = useState<Template[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refresh, setRefresh] = useState(false); // State to trigger refresh
+const UserPersonalPage: React.FC = () => {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [filledForms, setFilledForms] = useState<FilledForm[]>([]);
+  const [activeTab, setActiveTab] = useState("templates");
   const navigate = useNavigate();
 
-  const fetchTemplatesAndTags = async () => {
-    setLoading(true);
-    try {
-      const latestResponse = await axios.get<Template[]>(
-        `${apiUrl}/templates/latest`
-      );
-      const popularResponse = await axios.get<Template[]>(
-        `${apiUrl}/templates/popular`
-      );
-      const tagsResponse = await axios.get<Tag[]>(`${apiUrl}/templates/tags`);
+  useEffect(() => {
+    const fetchUserTemplatesAndForms = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const templatesResponse = await axios.get<Template[]>(
+          "/user/templates",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const formsResponse = await axios.get<FilledForm[]>("/user/forms", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setTemplates(templatesResponse.data);
+        setFilledForms(formsResponse.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
 
-      setLatestTemplates(latestResponse.data);
-      setPopularTemplates(popularResponse.data);
-      setTags(tagsResponse.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setError("Failed to fetch templates and tags.");
-    } finally {
-      setLoading(false);
-    }
+    fetchUserTemplatesAndForms();
+  }, []);
+
+  const handleEdit = (templateId: number) => {
+    navigate(`${apiUrl}/templates/edit/${templateId}`);
   };
 
-  useEffect(() => {
-    fetchTemplatesAndTags();
-  }, [refresh]); // Re-fetch when refresh changes
-
-  // Update the refresh state when navigating back from TemplateCreation
-  const location = useLocation();
-  useEffect(() => {
-    if (location.state?.refresh) {
-      setRefresh((prev) => !prev); // Toggle refresh state
-    }
-  }, [location.state]);
-
-  if (loading) {
-    return <div>Loading templates...</div>;
-  }
-
-  if (error) {
-    return <div className='text-red-500'>{error}</div>;
-  }
-
   return (
-    <div className='p-4'>
-      {/* Latest Templates */}
-      <h1 className='text-2xl font-bold mb-4'>Latest Templates</h1>
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8'>
-        {latestTemplates.map((template) => (
-          <div
-            key={template.id}
-            className='border p-4 rounded-lg shadow'
-            onClick={() => navigate(`/templates/${template.id}`)}>
-            <h3 className='font-bold text-blue-600 hover:underline cursor-pointer'>
-              {template.title || "No Title"}
-            </h3>
-            <p>{template.description || "No Description"}</p>
-            <p className='text-gray-600'>
-              Author: {template.author?.name || "Unknown"}
-            </p>
-            {template.image ? (
-              <img
-                src={template.image}
-                alt={template.title}
-                className='mt-2 w-full h-32 object-cover rounded'
-              />
-            ) : (
-              <p>No image available</p>
-            )}
-          </div>
-        ))}
+    <div className='max-w-5xl mx-auto p-6 bg-white shadow-md rounded-lg'>
+      <div className='flex mb-4'>
+        <button
+          className={`flex-1 p-2 text-center ${
+            activeTab === "templates" ? "bg-gray-300" : "bg-gray-100"
+          } rounded-l`}
+          onClick={() => setActiveTab("templates")}>
+          Your Templates
+        </button>
+        <button
+          className={`flex-1 p-2 text-center ${
+            activeTab === "filledForms" ? "bg-gray-300" : "bg-gray-100"
+          } rounded-r`}
+          onClick={() => setActiveTab("filledForms")}>
+          Your Filled Forms
+        </button>
       </div>
 
-      {/* Top 5 Most Popular Templates */}
-      <h2 className='text-xl font-bold mb-2'>Top 5 Most Popular Templates</h2>
-      <table className='min-w-full border border-gray-300 mb-8'>
-        <thead>
-          <tr>
-            <th className='border border-gray-300 px-4 py-2'>Template Name</th>
-            <th className='border border-gray-300 px-4 py-2'>Filled Count</th>
-          </tr>
-        </thead>
-        <tbody>
-          {popularTemplates.map((template) => (
-            <tr
-              key={template.id}
-              className='hover:bg-gray-100 cursor-pointer'
-              onClick={() => navigate(`/templates/${template.id}`)}>
-              <td className='border border-gray-300 px-4 py-2'>
-                {template.title || "No Title"}
-              </td>
-              <td className='border border-gray-300 px-4 py-2'>
-                {template.filledCount}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {activeTab === "templates" && (
+        <>
+          <table className='w-full mb-4'>
+            <thead>
+              <tr className='bg-gray-200'>
+                <th className='p-2 border text-left'>ID</th>
+                <th className='p-2 border text-left'>Title</th>
+                <th className='p-2 border text-left'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {templates.map((template) => (
+                <tr
+                  key={template.id}
+                  className='border-b'>
+                  <td className='p-2'>{template.id}</td>
+                  <td className='p-2'>{template.title}</td>
+                  <td className='p-2'>
+                    <button
+                      className='bg-yellow-500 text-white p-1 rounded hover:bg-yellow-600 transition'
+                      onClick={() => handleEdit(template.id)}>
+                      Edit
+                    </button>
+                    <button className='bg-red-500 text-white p-1 rounded hover:bg-red-600 transition ml-2'>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
-      {/* Tags Section */}
-      <h2 className='text-xl font-bold mb-2'>Tags</h2>
-      <div className='flex flex-wrap gap-2 mb-8'>
-        {tags.map((tag) => (
-          <span
-            key={tag.id}
-            className='bg-blue-200 px-2 py-1 rounded cursor-pointer hover:bg-blue-300'
-            onClick={() => navigate(`/search?tag=${tag.name}`)}>
-            {tag.name || "Unnamed Tag"}
-          </span>
-        ))}
-      </div>
+      {activeTab === "filledForms" && (
+        <>
+          <table className='w-full'>
+            <thead>
+              <tr className='bg-gray-200'>
+                <th className='p-2 border text-left'>ID</th>
+                <th className='p-2 border text-left'> Template Title</th>
+                <th className='p-2 border text-left'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filledForms.map((form) => (
+                <tr
+                  key={form.id}
+                  className='border-b'>
+                  <td className='p-2'>{form.id}</td>
+                  <td className='p-2'>{form.templateTitle}</td>
+                  <td className='p-2'>
+                    <button className='bg-blue-500 text-white p-1 rounded hover:bg-blue-600 transition'>
+                      View
+                    </button>
+                    <button className='bg-red-500 text-white p-1 rounded hover:bg-red-600 transition ml-2'>
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
     </div>
   );
 };
 
-export default HomePage;
+export default UserPersonalPage;

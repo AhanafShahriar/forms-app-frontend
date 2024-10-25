@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-// Define types for User and Template
 interface User {
   id: number;
   username: string;
-  role: string; // Include role
+  role: string;
 }
 
 interface Template {
@@ -24,29 +23,26 @@ const AdminDashboard: React.FC = () => {
 
     const fetchUsersAndTemplates = async () => {
       try {
-        // Fetch users
         const usersResponse = await axios.get<User[]>(`${apiUrl}/admin/users`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token here
+            Authorization: `Bearer ${token}`,
           },
         });
         setUsers(usersResponse.data);
 
-        // Fetch templates
         const templatesResponse = await axios.get<Template[]>(
           `${apiUrl}/templates`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // Pass the token here as well
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         setTemplates(templatesResponse.data);
 
-        // Fetch current user
         const currentUserResponse = await axios.get<User>(`${apiUrl}/auth/me`, {
           headers: {
-            Authorization: `Bearer ${token}`, // Pass the token here
+            Authorization: `Bearer ${token}`,
           },
         });
         setCurrentUser(currentUserResponse.data);
@@ -56,7 +52,7 @@ const AdminDashboard: React.FC = () => {
     };
 
     if (token) {
-      fetchUsersAndTemplates(); // Only fetch if token exists
+      fetchUsersAndTemplates();
     }
   }, []);
 

@@ -7,7 +7,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  role: string; // Ensure role is part of User interface
+  role: string;
 }
 
 interface LoginResponse {
@@ -33,19 +33,14 @@ const Login: React.FC = () => {
       const token = response.data.token;
       const user = response.data.user;
 
-      // Debugging: Log the user object
       console.log("User data from API:", user);
 
-      // Ensure the user object contains role
       if (user && user.id && user.email && user.role) {
-        // Store token and user data in local storage
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
 
-        // Set default Authorization header for future requests
         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-        // Pass user to the login context
         login(user);
         navigate("/");
       } else {

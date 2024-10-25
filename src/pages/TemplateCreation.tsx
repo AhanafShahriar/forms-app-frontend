@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 const apiUrl = process.env.REACT_APP_API_URL;
 type Tag = { name: string };
-const predefinedTopics = ["Education", "Quiz", "Other"]; // Add more topics as needed
+const predefinedTopics = ["Education", "Quiz", "Other"];
 console.log(apiUrl);
 const TemplateCreation = () => {
   const { currentUser } = useAuth();
@@ -32,7 +32,6 @@ const TemplateCreation = () => {
   const [success, setSuccess] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [errorUsers, setErrorUsers] = useState<string | null>(null);
-  // ... existing state variables
   const [image, setImage] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -46,8 +45,8 @@ const TemplateCreation = () => {
 
     const file = event.target.files[0];
     const formData = new FormData();
-    formData.append("file", file); // Cloudinary expects 'file' as the key
-    formData.append("upload_preset", "forms-app-preset"); // Cloudinary upload preset
+    formData.append("file", file); //cloudinary
+    formData.append("upload_preset", "forms-app-preset");
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -57,27 +56,23 @@ const TemplateCreation = () => {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       const secure_url = (response.data as { secure_url: string }).secure_url;
-      setImageUrl(secure_url); // Set the uploaded image URL
+      setImageUrl(secure_url);
     } catch (error) {
       console.error("Error uploading image:", error);
       setError("Error uploading image. Please try again.");
     }
   };
 
-  // Fetch tags
   const fetchTags = async () => {
     try {
       const response = await axios.get<Tag[]>(`${apiUrl}/templates/tags`);
       setAllTags(response.data.map((tag) => tag.name));
     } catch (error) {
       console.error("Error fetching tags:", error);
-      setError("Error fetching tags. Please try again."); // Added error handling
+      setError("Error fetching tags. Please try again.");
     }
   };
-  // Fetch user details
-  // Fetch user details
 
-  // Fetch users
   const fetchUsers = async () => {
     setLoadingUsers(true);
     setErrorUsers(null);
@@ -106,17 +101,6 @@ const TemplateCreation = () => {
     console.log(apiUrl);
   }, [currentUser]);
 
-  // Handle drag-and-drop of questions
-  const handleDragEnd = (result: DropResult) => {
-    if (!result.destination) return;
-
-    const updatedQuestions = Array.from(questions);
-    const [movedQuestion] = updatedQuestions.splice(result.source.index, 1);
-    updatedQuestions.splice(result.destination.index, 0, movedQuestion);
-    setQuestions(updatedQuestions);
-  };
-
-  // Update question fields
   const handleQuestionChange = (
     id: string,
     field: keyof Question,
@@ -127,7 +111,6 @@ const TemplateCreation = () => {
     );
   };
 
-  // Form submission handler
   const handleSubmit = async () => {
     if (!title || !description || !topic || questions.length === 0) {
       setError(
@@ -146,7 +129,7 @@ const TemplateCreation = () => {
       description,
       topic,
       tags,
-      public: publicTemplate, // Adjust based on your requirements
+      public: publicTemplate,
       selectedUsers: publicTemplate ? [] : selectedUsers.map((user) => user.id),
       user: userName,
       date,
@@ -160,7 +143,7 @@ const TemplateCreation = () => {
           options: type === "CHECKBOX" ? options : undefined,
         })
       ),
-      imageUrl: imageUrl, // Use the uploaded image URL
+      imageUrl: imageUrl,
     };
     console.log("Template data being sent:", templateData);
     try {
@@ -171,7 +154,6 @@ const TemplateCreation = () => {
       });
       setSuccess(true);
       navigate("/", { state: { refresh: true } });
-      // Reset form or navigate as needed
     } catch (err) {
       const error = err as any;
       if (error.response) {
@@ -326,7 +308,7 @@ const TemplateCreation = () => {
               onChange={(e) => {
                 setRestrictedAccess(e.target.checked);
                 if (e.target.checked) {
-                  setPublicTemplate(false); // Uncheck public template if restricted access is selected
+                  setPublicTemplate(false);
                 }
               }}
               className='mr-2'
@@ -365,8 +347,8 @@ const TemplateCreation = () => {
               onChange={(e) => {
                 setPublicTemplate(e.target.checked);
                 if (e.target.checked) {
-                  setRestrictedAccess(false); // Uncheck restricted access if public template is selected
-                  setSelectedUsers([]); // Clear selected users if making public
+                  setRestrictedAccess(false);
+                  setSelectedUsers([]);
                 }
               }}
               className='mr-2'
