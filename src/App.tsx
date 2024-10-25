@@ -1,11 +1,10 @@
-// src/App.tsx
 import React from "react";
-import AppRouter from "./Router"; // Import the router
+import AppRouter from "./Router";
 
 function App() {
   return (
     <div className='App'>
-      <AppRouter /> {/* Render the router here */}
+      <AppRouter />
     </div>
   );
 }
