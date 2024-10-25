@@ -23,18 +23,21 @@ const UserPersonalPage: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         const templatesResponse = await axios.get<Template[]>(
-          "/user/templates",
+          `${apiUrl}/user/templates`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        const formsResponse = await axios.get<FilledForm[]>("/user/forms", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const formsResponse = await axios.get<FilledForm[]>(
+          `${apiUrl}/user/forms`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         setTemplates(templatesResponse.data);
         setFilledForms(formsResponse.data);
       } catch (err) {
