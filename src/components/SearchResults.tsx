@@ -1,47 +1,44 @@
-// SearchResults.tsx
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface Template {
-  id: number; // Adjust the type based on your schema
+  id: number;
   title: string;
   description: string;
-  author?: {
-    name?: string;
-  };
-  // Add any other fields you expect from the API response
 }
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const SearchResults: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [noResults, setNoResults] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [loading, setLoading] = useState<boolean>(true);
 
   const query = searchParams.get("query") || searchParams.get("tag");
 
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await axios.get<Template[]>(`/templates/search`, {
-          params: { query },
-        });
+        const response = await axios.get<Template[]>(
+          `${apiUrl}/templates/search`,
+          {
+            params: { query },
+          }
+        );
         setTemplates(response.data);
 
-        // If no templates are found, wait for 10 seconds before showing the message
         if (response.data.length === 0) {
           setTimeout(() => {
             setNoResults(true);
-          }, 10000); // 10 seconds
+          }, 5000);
         } else {
-          setNoResults(false); // Reset noResults if templates are found
+          setNoResults(false);
         }
       } catch (error) {
         console.error("Error fetching search results:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching
+        setLoading(false);
       }
     };
 
@@ -49,7 +46,7 @@ const SearchResults: React.FC = () => {
   }, [query]);
 
   if (loading) {
-    return <div className='mt-5 ml-5'>Loading...</div>; // Optionally show a loading message
+    return <div className='mt-5 ml-5'>Loading...</div>;
   }
 
   if (noResults) {
@@ -68,9 +65,9 @@ const SearchResults: React.FC = () => {
             className='border p-4 rounded-lg shadow hover:shadow-lg transition-shadow cursor-pointer'
             onClick={() => navigate(`/templates/${template.id}`)}>
             <h3 className='font-bold text-blue-600 hover:underline'>
-              {template.title || "No Title"}
+              {template.title}
             </h3>
-            <p>{template.description || "No Description"}</p>
+            <p>{template.description}</p>
           </div>
         ))}
       </div>

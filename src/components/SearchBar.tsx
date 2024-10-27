@@ -22,7 +22,7 @@ const SearchBar: React.FC = () => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder='Search templates...'
-        className='p-2 rounded-l-md'
+        className='p-2 rounded-l-md text-indigo-950'
       />
       <button
         type='submit'
