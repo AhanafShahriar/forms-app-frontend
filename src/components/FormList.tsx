@@ -7,26 +7,54 @@ interface FilledForm {
   answers: { questionId: number; value: string }[];
   user: { name: string }; // Assuming you have user info in the filled form
 }
+
+interface Template {
+  id: number;
+  creatorId: string; // Assuming you have a creatorId field
+}
+
 const apiUrl = process.env.REACT_APP_API_URL;
+
 const FormList: React.FC = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [filledForms, setFilledForms] = useState<FilledForm[]>([]);
+  const [isCreator, setIsCreator] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchFilledForms = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get<FilledForm[]>(
-          `${apiUrl}/forms/template/${templateId}`,
+        // Fetch template to check the creator
+        const templateResponse = await axios.get<Template>(
+          `${apiUrl}/templates/${templateId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setFilledForms(response.data);
+
+        const currentUserId = localStorage.getItem("userId"); // Assuming userId is stored in localStorage
+        if (templateResponse.data.creatorId === currentUserId) {
+          setIsCreator(true);
+          // Fetch filled forms only if the user is the creator
+          const formsResponse = await axios.get<FilledForm[]>(
+            `${apiUrl}/forms/template/${templateId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          setFilledForms(formsResponse.data);
+        } else {
+          setIsCreator(false);
+        }
       } catch (error) {
         console.error("Error fetching filled forms:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -47,6 +75,14 @@ const FormList: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!isCreator) {
+    return <p>You do not have permission to view this list.</p>;
+  }
+
   return (
     <div className='container mx-auto p-6'>
       <h2 className='text-2xl font-bold mb-4'>Filled Forms</h2>
@@ -55,7 +91,7 @@ const FormList: React.FC = () => {
           <thead>
             <tr>
               <th className='border border-gray-300 p-2'>ID</th>
-              <th className='border border-gray-300 p-2'>User</th>
+              <th className='border border-gray-300 p-2'>User </th>
               <th className='border border-gray-300 p-2'>Actions</th>
             </tr>
           </thead>
