@@ -182,6 +182,7 @@ const QuestionManagerEdit: React.FC<QuestionManagerProps> = ({
       ))}
 
       <button
+        type='button'
         onClick={handleAddQuestion}
         className='mt-2 p-2 bg-blue-500 text-white font-bold rounded-lg w-full'
         aria-label='Add New Question'>

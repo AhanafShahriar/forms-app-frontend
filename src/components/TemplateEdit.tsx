@@ -3,7 +3,8 @@ import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import TagsInput from "../components/TagsInput";
-import QuestionManager, { Question } from "../components/QuestionManagerEdit";
+import QuestionManagerEdit, { Question } from "./QuestionManagerEdit";
+import UserSelection, { User } from "../components/UserSelection";
 
 const predefinedTopics = ["Education", "Quiz", "Other"];
 
@@ -17,6 +18,7 @@ interface Template {
   tags: { name: string }[];
   questions: Question[];
   isPublic: boolean;
+  allowedUsers: User[];
 }
 const apiUrl = process.env.REACT_APP_API_URL;
 const TemplateEdit = () => {
@@ -28,26 +30,82 @@ const TemplateEdit = () => {
   const [topic, setTopic] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [allowedUsers, setAllowedUsers] = useState<User[]>([]);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [isPublic, setIsPublic] = useState(false);
+  const [restrictedAccess, setRestrictedAccess] = useState(false);
+  const [loadingTemplate, setLoadingTemplate] = useState(true);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const navigate = useNavigate();
-
+  const apiUrl = process.env.REACT_APP_API_URL;
+  // Fetch the template details
+  // Fetch the template details
   useEffect(() => {
     const fetchTemplate = async () => {
+      setLoadingTemplate(true);
       try {
         const response = await axios.get<Template>(`${apiUrl}/templates/${id}`);
+        console.log("Fetched template response:", response.data); // Log the response
         setTemplate(response.data);
         setTitle(response.data.title);
         setDescription(response.data.description);
         setTopic(response.data.topic);
         setTags(response.data.tags.map((tag) => tag.name));
         setQuestions(response.data.questions);
+        setAllowedUsers(
+          Array.isArray(response.data.allowedUsers)
+            ? response.data.allowedUsers
+            : []
+        ); // Ensure this is set correctly
+        setIsPublic(response.data.isPublic); // Correctly use 'public'
+        setRestrictedAccess(
+          Array.isArray(response.data.allowedUsers) &&
+            response.data.allowedUsers.length > 0 &&
+            !response.data.isPublic // Correctly use 'public'
+        );
       } catch (error) {
         console.error("Error fetching template:", error);
+      } finally {
+        setLoadingTemplate(false);
       }
     };
 
     fetchTemplate();
   }, [id]);
 
+  // Fetch all users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found. User might not be logged in.");
+        return;
+      }
+
+      setLoadingUsers(true);
+      try {
+        const response = await axios.get<User[]>(`${apiUrl}/user/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setAllUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Show loading state while fetching template or users
+  if (loadingTemplate || loadingUsers) {
+    return <p>Loading...</p>;
+  }
+
+  // Handle template update
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -64,9 +122,12 @@ const TemplateEdit = () => {
           title,
           description,
           topic,
-          tags: tags.map((tag) => ({ name: tag })),
+          tags: tags.map((tag) => tag),
           questions,
-          isPublic: template?.isPublic,
+          isPublic,
+          allowedUsers: restrictedAccess
+            ? allowedUsers.map((user) => user.id)
+            : [],
         },
         {
           headers: {
@@ -91,8 +152,8 @@ const TemplateEdit = () => {
   }
 
   return (
-    <div className='container mx-auto p-6'>
-      <h2 className='text-2xl font-bold mb-4'>Edit Template</h2>
+    <div className='mt-10 mb-10 max-w-2xl mx-auto p-10 bg-white shadow-2xl rounded-lg'>
+      <h2 className='text-2xl text-center font-bold mb-4'>Edit Template</h2>
       <form
         onSubmit={handleUpdate}
         className='space-y-4'>
@@ -154,7 +215,7 @@ const TemplateEdit = () => {
 
         <div className='mb-4'>
           <label className='block text-lg font-semibold mb-2'>Questions</label>
-          <QuestionManager
+          <QuestionManagerEdit
             questions={questions}
             onAddQuestion={(q: Question) =>
               setQuestions((prevQuestions) => [...prevQuestions, q])
@@ -177,12 +238,44 @@ const TemplateEdit = () => {
         <div className='flex items-center mt-4'>
           <input
             type='checkbox'
-            checked={template?.isPublic} // Changed from public to isPublic
+            checked={restrictedAccess}
             onChange={(e) => {
-              // Update the template's public status
-              axios.put(`${apiUrl}/templates/${id}`, {
-                isPublic: e.target.checked, // Changed from public to isPublic
-              });
+              setRestrictedAccess(e.target.checked);
+              if (e.target.checked) {
+                setIsPublic(false);
+              }
+            }}
+            className='mr-2'
+          />
+          <label className='font-semibold'>
+            Restricted Access (Select User)
+          </label>
+        </div>
+
+        {restrictedAccess && (
+          <UserSelection
+            users={allUsers}
+            selectedUsers={allowedUsers}
+            onUserToggle={(user: User) => {
+              setAllowedUsers((prev) =>
+                prev.includes(user)
+                  ? prev.filter((u) => u.id !== user.id)
+                  : [...prev, user]
+              );
+            }}
+          />
+        )}
+
+        <div className='flex items-center mt-4'>
+          <input
+            type='checkbox'
+            checked={isPublic}
+            onChange={(e) => {
+              setIsPublic(e.target.checked);
+              if (e.target.checked) {
+                setRestrictedAccess(false);
+                setAllowedUsers([]);
+              }
             }}
             className='mr-2'
           />

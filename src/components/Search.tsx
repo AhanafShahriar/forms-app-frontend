@@ -8,8 +8,8 @@ interface Template {
 }
 const apiUrl = process.env.REACT_APP_API_URL;
 const Search: React.FC = () => {
-  const [query, setQuery] = useState<string>("");
-  const [results, setResults] = useState<Template[]>([]);
+  const [query, setQuery] = useState<string>(""); // State for search query
+  const [results, setResults] = useState<Template[]>([]); // State for results as Template array
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +18,7 @@ const Search: React.FC = () => {
         const response = await axios.get<Template[]>(
           `${apiUrl}/search?query=${query}`
         );
-        setResults(response.data);
+        setResults(response.data); // Assuming response.data is an array of Template
       } catch (err) {
         console.error(err);
       }

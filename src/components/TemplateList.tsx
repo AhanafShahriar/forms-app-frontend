@@ -8,7 +8,6 @@ interface Template {
   title: string;
   description: string;
 }
-const apiUrl = process.env.REACT_APP_API_URL;
 
 const TemplateList: React.FC = () => {
   const [templates, setTemplates] = useState<Template[]>([]); // Define the type for templates
@@ -17,7 +16,7 @@ const TemplateList: React.FC = () => {
     const fetchTemplates = async () => {
       try {
         // Use the Template type for the Axios response
-        const response = await axios.get<Template[]>(`${apiUrl}/api/templates`);
+        const response = await axios.get<Template[]>("/api/templates");
         setTemplates(response.data); // TypeScript now knows response.data is Template[]
       } catch (error) {
         console.error("Error fetching templates:", error);

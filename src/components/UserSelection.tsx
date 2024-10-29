@@ -10,12 +10,14 @@ type UserSelectionProps = {
   users: User[];
   selectedUsers: User[];
   onUserToggle: (user: User) => void;
+  disabled?: boolean; // Add the disabled prop
 };
 
 const UserSelection: React.FC<UserSelectionProps> = ({
   users,
   selectedUsers,
   onUserToggle,
+  disabled, // Destructure the disabled prop
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "email">("name");
@@ -66,14 +68,18 @@ const UserSelection: React.FC<UserSelectionProps> = ({
           onClick={() => handleSortChange("name")}
           className={`p-2 rounded ${
             sortBy === "name" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}>
+          }`}
+          disabled={disabled} // Disable sort button if disabled
+        >
           Select by Name
         </button>
         <button
           onClick={() => handleSortChange("email")}
           className={`p-2 rounded ${
             sortBy === "email" ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}>
+          }`}
+          disabled={disabled} // Disable sort button if disabled
+        >
           Select by Email
         </button>
       </div>
@@ -88,6 +94,7 @@ const UserSelection: React.FC<UserSelectionProps> = ({
         onChange={handleSearchInputChange}
         onKeyDown={handleKeyDown}
         className='border p-2 w-full rounded'
+        disabled={disabled} // Disable input if disabled
       />
       {searchQuery && (
         <datalist id='users'>
@@ -109,7 +116,9 @@ const UserSelection: React.FC<UserSelectionProps> = ({
             {user.name}
             <button
               onClick={() => onUserToggle(user)}
-              className='ml-2 text-red-500'>
+              className=' ml-2 text-red-500'
+              disabled={disabled} // Disable remove button if disabled
+            >
               X
             </button>
           </div>

@@ -13,10 +13,10 @@ import TemplateEdit from "./components/TemplateEdit";
 import FormList from "./components/FormList";
 import FormDetail from "./components/FormDetail";
 import EditForm from "./components/EditForm";
-import FormSubmission from "./components/FormSubmission";
-import FormCreation from "./components/FormCreation";
+
 import SearchResults from "./components/SearchResults";
 import Navbar from "./components/Navbar";
+import FormFill from "./components/FormFill";
 // import { fetchTemplatesAndTags } from "./services/templateService";
 
 const AppRouter: React.FC = () => {
@@ -68,17 +68,14 @@ const AppRouter: React.FC = () => {
           path='/forms/:formId'
           element={<FormDetail />}
         />
-        <Route
-          path='/forms/:templateId/create'
-          element={<FormCreation />}
-        />
+
         <Route
           path='/forms/:formId/edit'
           element={<EditForm />}
         />
         <Route
-          path='/forms/:templateId/submit'
-          element={<FormSubmission />}
+          path='/forms/:templateId/fill'
+          element={<FormFill />}
         />
         <Route
           path='/search'

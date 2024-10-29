@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
 interface Comment {
   id: number;
@@ -12,19 +11,18 @@ interface User {
   id: string;
   name: string;
 }
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const Comments: React.FC<{ templateId: string; currentUser: User | null }> = ({
   templateId,
   currentUser,
 }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
-  const navigate = useNavigate();
 
   const fetchComments = async () => {
     try {
       const response = await axios.get<Comment[]>(
-        `/templates/${templateId}/comments`
+        `${apiUrl}/templates/${templateId}/comments`
       );
       setComments(response.data);
     } catch (error) {
@@ -34,18 +32,12 @@ const Comments: React.FC<{ templateId: string; currentUser: User | null }> = ({
 
   useEffect(() => {
     fetchComments();
-
-    const intervalId = setInterval(() => {
-      fetchComments();
-    }, 3000);
-
-    return () => clearInterval(intervalId);
   }, [templateId]);
 
   const handleCommentSubmit = async () => {
     if (!newComment) return;
     try {
-      await axios.post(`/templates/${templateId}/comments`, {
+      await axios.post(`${apiUrl}/templates/${templateId}/comments`, {
         content: newComment,
       });
       setNewComment("");

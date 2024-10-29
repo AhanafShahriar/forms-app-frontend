@@ -31,7 +31,6 @@ interface Template {
   tags: { name: string }[];
   questions: Question[];
   likes: { id: string; userId: string }[];
-  users: { id: string; name: string }[];
   imageUrl?: string;
 }
 const apiUrl = process.env.REACT_APP_API_URL;
@@ -73,7 +72,7 @@ const TemplateDetail = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className='mt-5 ml-5'>Loading...</p>;
   if (error) return <p className='text-red-500'>{error}</p>;
 
   if (!template) {
@@ -84,52 +83,56 @@ const TemplateDetail = () => {
   const isAuthor = currentUser && currentUser.id === template.author.id;
 
   return (
-    <div className='max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg'>
+    <div className='mt-10 max-w-2xl mx-auto p-10 bg-white shadow-2xl rounded-lg'>
       <h1 className='text-xl text-center font-bold mb-4'>{template.title}</h1>
 
-      {error && <p className='text-red-500'>{error}</p>}
-      <p className='text-lg mb-2'>{template.description}</p>
-      <p className='font-semibold'>Author: {template.author.name}</p>
-      <p className='font-semibold'>
-        Created At: {new Date(template.createdAt).toLocaleDateString()}
+      <p className='text-lg mb-4'>{template.description}</p>
+      <p className='font-semibold mb-1'>
+        Author: <span className='font-medium'>{template.author.name}</span>
       </p>
-      <p className='font-semibold'>Topic: {template.topic}</p>
+      <p className='font-semibold mb-1'>
+        <span className='font-semibold'>Created At: </span>{" "}
+        <span className='font-medium'>
+          {new Date(template.createdAt).toLocaleDateString()}
+        </span>
+      </p>
+      <p className='font-semibold mb-1'>
+        Topic: <span className='font-medium'>{template.topic}</span>
+      </p>
       <p className='font-semibold'>
         Tags:{" "}
-        {template.tags
-          ? template.tags.map((tag: { name: string }) => tag.name).join(", ")
-          : "No tags"}
-      </p>
-      <p className='font-semibold'>
-        Users:{" "}
-        {template.users
-          ? template.users.map((user: any) => user.name).join(", ")
-          : "No users"}
+        <span className='font-medium'>
+          {template.tags
+            ? template.tags.map((tag: { name: string }) => tag.name).join(", ")
+            : "No tags"}
+        </span>
       </p>
 
-      <h2 className='text-xl font-semibold mt-4'>Questions</h2>
-      <ul className='list-disc pl-5 mb-4'>
+      <h2 className='text-xl font-semibold mt-5 mb-4'>Questions</h2>
+      <ul className='list-disc pl-5 mb-5'>
         {template.questions && template.questions.length > 0 ? (
           template.questions.map((question: Question) => (
-            <li key={question.id}>
-              <strong>{question.title}</strong>: {question.description}
-              {question.type === "CHECKBOX" &&
-                question.options && ( // Change to "CHECKBOX"
-                  <div className='mt-2'>
-                    {question.options.map((option: Option) => (
-                      <label
-                        key={option.id}
-                        className='block'>
-                        <input
-                          type='checkbox'
-                          disabled
-                          className='mr-2'
-                        />
-                        {option.value}
-                      </label>
-                    ))}
-                  </div>
-                )}
+            <li
+              key={question.id}
+              className='mb-3'>
+              <h3 className='font-semibold'>{question.title}</h3>-{" "}
+              {question.description}
+              {question.type === "CHECKBOX" && question.options && (
+                <div className='mt-2'>
+                  {question.options.map((option: Option) => (
+                    <label
+                      key={option.id}
+                      className='block'>
+                      <input
+                        type='checkbox'
+                        disabled
+                        className='mr-2'
+                      />
+                      {option.value}
+                    </label>
+                  ))}
+                </div>
+              )}
             </li>
           ))
         ) : (
@@ -138,11 +141,14 @@ const TemplateDetail = () => {
       </ul>
 
       {template.imageUrl && (
-        <img
-          src={template.imageUrl}
-          alt='Template'
-          className='mt-4 w-full h-64 object-cover rounded-md'
-        />
+        <div>
+          <h3 className='font-semibold'>Image</h3>
+          <img
+            src={template.imageUrl}
+            alt='Template'
+            className='mt-4 w-full h-64 object-scale-down rounded-md  shadow-md'
+          />
+        </div>
       )}
 
       <p className='font-semibold mt-4'>Total Likes: {totalLikes}</p>
@@ -159,11 +165,26 @@ const TemplateDetail = () => {
         <span>{liked ? "Unlike" : "Like"}</span>
       </button>
 
+      {currentUser && (
+        <button
+          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mr-4'
+          onClick={() => navigate(`/forms/${templateId}/fill`)}>
+          Fill Form
+        </button>
+      )}
+
       {isAuthor && (
         <button
-          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4'
+          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mr-4'
           onClick={() => navigate(`/templates/edit/${templateId}`)}>
           Edit Template
+        </button>
+      )}
+      {isAuthor && (
+        <button
+          className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4 mr-4'
+          onClick={() => navigate(`/templates/${templateId}/forms`)}>
+          Forms List
         </button>
       )}
 

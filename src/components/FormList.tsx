@@ -1,22 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, Link } from "react-router-dom";
-const apiUrl = process.env.API_URL;
+
 interface FilledForm {
   id: number;
   answers: { questionId: number; value: string }[];
-  user: { username: string }; // Assuming you have user info in the filled form
+  user: { name: string }; // Assuming you have user info in the filled form
 }
-
+const apiUrl = process.env.REACT_APP_API_URL;
 const FormList: React.FC = () => {
   const { templateId } = useParams<{ templateId: string }>();
   const [filledForms, setFilledForms] = useState<FilledForm[]>([]);
 
   useEffect(() => {
     const fetchFilledForms = async () => {
+      const token = localStorage.getItem("token");
       try {
         const response = await axios.get<FilledForm[]>(
-          `${apiUrl}/api/forms/template/${templateId}`
+          `${apiUrl}/forms/template/${templateId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
         setFilledForms(response.data);
       } catch (error) {
@@ -28,8 +34,13 @@ const FormList: React.FC = () => {
   }, [templateId]);
 
   const handleDelete = async (formId: number) => {
+    const token = localStorage.getItem("token");
     try {
-      await axios.delete(`${apiUrl}/api/forms/${formId}`);
+      await axios.delete(`${apiUrl}/forms/${formId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setFilledForms((prev) => prev.filter((form) => form.id !== formId)); // Remove deleted form from state
     } catch (error) {
       console.error("Error deleting form:", error);
@@ -40,7 +51,7 @@ const FormList: React.FC = () => {
     <div className='container mx-auto p-6'>
       <h2 className='text-2xl font-bold mb-4'>Filled Forms</h2>
       {filledForms.length > 0 ? (
-        <table className='min-w-full border-collapse border border-gray-300'>
+        <table className='min-w-full text-center border-collapse border border-gray-300'>
           <thead>
             <tr>
               <th className='border border-gray-300 p-2'>ID</th>
@@ -52,9 +63,7 @@ const FormList: React.FC = () => {
             {filledForms.map((form) => (
               <tr key={form.id}>
                 <td className='border border-gray-300 p-2'>{form.id}</td>
-                <td className='border border-gray-300 p-2'>
-                  {form.user.username}
-                </td>
+                <td className='border border-gray-300 p-2'>{form.user.name}</td>
                 <td className='border border-gray-300 p-2'>
                   <Link
                     to={`/forms/${form.id}`}

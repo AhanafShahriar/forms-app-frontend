@@ -1,11 +1,13 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+
 export type QuestionType =
   | "SINGLE_LINE"
   | "MULTI_LINE"
   | "INTEGER"
   | "CHECKBOX";
+
 export type Question = {
   id: string;
   title: string;
@@ -14,12 +16,14 @@ export type Question = {
   displayedInTable: boolean;
   options?: string[];
 };
+
 type QuestionManagerProps = {
   questions: Question[];
   onAddQuestion: (q: Question) => void;
   onDeleteQuestion: (id: string) => void;
   onQuestionChange: (id: string, field: keyof Question, value: any) => void;
 };
+
 const QuestionManager: React.FC<QuestionManagerProps> = ({
   questions,
   onAddQuestion,
@@ -28,8 +32,8 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
 }) => {
   const handleAddQuestion = () => {
     const newQuestion: Question = {
-      id: Date.now().toString(),
-      title: "New Question",
+      id: Date.now().toString(), // Generate a unique ID
+      title: "",
       description: "",
       type: "SINGLE_LINE",
       displayedInTable: false,
@@ -37,6 +41,7 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     };
     onAddQuestion(newQuestion);
   };
+
   return (
     <div className='space-y-4'>
       {questions.map((q) => (
@@ -54,7 +59,9 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
             />
             <select
               value={q.type}
-              onChange={(e) => onQuestionChange(q.id, "type", e.target.value)}
+              onChange={(e) =>
+                onQuestionChange(q.id, "type", e.target.value as QuestionType)
+              }
               className='p-2 border rounded-lg w-1/3'
               aria-label='Question Type'>
               <option value='SINGLE_LINE'>Single-line</option>
@@ -69,64 +76,25 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
               <FontAwesomeIcon icon={faTrashAlt} />
             </button>
           </div>
-          {/* Description Input (Prompt) */}
-          {q.type === "SINGLE_LINE" ? (
-            <input
-              value={q.description}
-              onChange={(e) =>
-                onQuestionChange(q.id, "description", e.target.value)
-              }
-              placeholder='Question Description'
-              className='p-2 border rounded-lg w-full'
-              maxLength={100}
-              aria-label='Question Description'
-            />
-          ) : (
-            <textarea
-              value={q.description}
-              onChange={(e) =>
-                onQuestionChange(q.id, "description", e.target.value)
-              }
-              placeholder='Question Description / Prompt'
-              className='p-2 border rounded-lg w-full'
-              rows={2}
-              aria-label='Question Description'
-            />
-          )}
-          {/* Dynamic Input Preview Based on Question Type */}
-          {q.type === "SINGLE_LINE" && (
-            <input
-              type='text'
-              placeholder='Single-line Answer Preview'
-              className='p-2 border rounded-lg w-full'
-              disabled
-              aria-label='Single-line Answer Preview'
-            />
-          )}
-          {q.type === "MULTI_LINE" && (
-            <textarea
-              placeholder='Multi-line Answer Preview'
-              className='p-2 border rounded-lg w-full'
-              rows={3}
-              disabled
-              aria-label='Multi-line Answer Preview'
-            />
-          )}
-          {q.type === "INTEGER" && (
-            <input
-              type='number'
-              placeholder='Integer Answer Preview'
-              className='p-2 border rounded-lg w-full'
-              disabled
-              aria-label='Integer Answer Preview'
-            />
-          )}
+          <textarea
+            value={q.description}
+            onChange={(e) =>
+              onQuestionChange(q.id, "description", e.target.value)
+            }
+            placeholder='Question Description / Prompt'
+            className='p-2 border rounded-lg w-full'
+            rows={2}
+            aria-label='Question Description'
+          />
+          <div className='p-2 border rounded-lg w-full bg-gray-100'>
+            <p className='text-gray-500'>Answer Preview</p>
+          </div>
           {q.type === "CHECKBOX" && (
             <div>
               <p className='font-semibold'>Checkbox Options:</p>
               {q.options?.map((option, index) => (
                 <div
-                  key={index}
+                  key={`${q.id}-option-${index}`}
                   className='flex items-center space-x-2'>
                   <span className='text-lg'>☐️</span>
                   <input
@@ -186,4 +154,5 @@ const QuestionManager: React.FC<QuestionManagerProps> = ({
     </div>
   );
 };
+
 export default QuestionManager;
