@@ -31,7 +31,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ templateTitle, pageLink }) => {
         {
           summary,
           priority,
-
+          templateTitle,
           pageLink,
         },
         {
