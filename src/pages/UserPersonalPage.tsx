@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useTranslation } from "react-i18next";
 import i18n from "../i18n";
+import CreateAccountForm from "../components/CreateAccountForm";
+
 interface Template {
   id: number;
   title: string;
@@ -15,14 +17,16 @@ interface FilledForm {
 }
 const apiUrl = process.env.REACT_APP_API_URL;
 const UserPersonalPage: React.FC = () => {
-  const { t } = useTranslation(); // Initialize translation
+  const { t } = useTranslation();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [filledForms, setFilledForms] = useState<FilledForm[]>([]);
   const [activeTab, setActiveTab] = useState("templates");
   const { theme, language, updatePreferences } = useAuth();
   const [selectedLanguage, setSelectedLanguage] = useState(language);
   const [selectedTheme, setSelectedTheme] = useState(theme);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", selectedTheme === "DARK");
@@ -115,6 +119,13 @@ const UserPersonalPage: React.FC = () => {
   return (
     <div
       className={`max-w-5xl mx-auto p-6 bg-white shadow-md rounded-lg dark:bg-gray-800`}>
+      <h1 className='text-xl font-bold mb-4'>{t("userProfile")}</h1>
+      <button
+        onClick={() => setIsFormOpen(true)}
+        className='bg-green-500 text-white p-2 rounded hover:bg-green-600 transition mb-4'>
+        Create Salesforce Account
+      </button>
+      {isFormOpen && <CreateAccountForm onClose={() => setIsFormOpen(false)} />}{" "}
       <div className='flex mb-4'>
         <button
           className={`flex-1 p-2 text-center ${
@@ -123,7 +134,7 @@ const UserPersonalPage: React.FC = () => {
               : "bg-gray-100 dark:bg-gray-600"
           } rounded-l`}
           onClick={() => setActiveTab("templates")}>
-          {t("yourTemplates")} {/* Use translation */}
+          {t("yourTemplates")}
         </button>
         <button
           className={`flex-1 p-2 text-center ${
@@ -132,10 +143,9 @@ const UserPersonalPage: React.FC = () => {
               : "bg-gray-100 dark:bg-gray-600"
           } rounded-r`}
           onClick={() => setActiveTab("filledForms")}>
-          {t("yourFilledForms")} {/* Use translation */}
+          {t("yourFilledForms")}
         </button>
       </div>
-
       {activeTab === "templates" && (
         <table className='w-full mb-4'>
           <thead>
@@ -169,7 +179,6 @@ const UserPersonalPage: React.FC = () => {
           </tbody>
         </table>
       )}
-
       {activeTab === "filledForms" && (
         <table className='w-full'>
           <thead>
@@ -193,7 +202,7 @@ const UserPersonalPage: React.FC = () => {
                     View
                   </button>
                   <button
-                    className='bg-red-500 text-white p-1 rounded hover:bg-red-600 transition ml-2 '
+                    className='bg-red-500 text-white p-1 rounded hover:bg-red-600 transition ml-2'
                     onClick={() => handleDeleteForm(form.id)}>
                     Delete
                   </button>
@@ -221,7 +230,6 @@ const UserPersonalPage: React.FC = () => {
             onChange={handleThemeChange}>
             <option value='LIGHT'>{t("light")}</option>
             <option value='DARK'>{t("dark")}</option>
-            {/* Add more themes as needed */}
           </select>
         </label>
         <button onClick={handleUpdatePreferences}>

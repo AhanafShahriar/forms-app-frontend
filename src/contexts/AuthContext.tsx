@@ -6,10 +6,11 @@ interface User {
   name: string;
   role: string;
   profilePicture?: string;
+  email: string;
 }
 
 interface UserPreferences {
-  language: string; // Language preference
+  language: string;
   theme: string;
 }
 
@@ -18,8 +19,8 @@ interface AuthContextType {
   currentUserId: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  language: string; // Added for language preference
-  theme: string; // Added for theme preference
+  language: string;
+  theme: string;
   login: (user: User) => void;
   logout: () => void;
   updatePreferences: (
@@ -36,9 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [language, setLanguage] = useState("ENGLISH"); // Default language
-  const [theme, setTheme] = useState("LIGHT"); // Default theme
-
+  const [language, setLanguage] = useState("ENGLISH");
+  const [theme, setTheme] = useState("LIGHT");
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       if (storedUser) {
         setCurrentUser(storedUser);
         setIsAdmin(storedUser.role === "ADMIN");
-        fetchUserPreferences(token); // Fetch preferences on initial load
+        fetchUserPreferences(token);
       }
     }
   }, []);
@@ -56,13 +56,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsAdmin(user.role === "ADMIN");
     localStorage.setItem("user", JSON.stringify(user));
 
-    // Fetch user preferences including language
+    localStorage.setItem("userName", user.name);
+    localStorage.setItem("userEmail", user.email);
+
     const token = localStorage.getItem("token");
     if (token) {
       await fetchUserPreferences(token);
     }
   };
-
   const logout = () => {
     setCurrentUser(null);
     setIsAdmin(false);
@@ -82,8 +83,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       setLanguage(response.data.language);
       setTheme(response.data.theme);
-      localStorage.setItem("language", response.data.language); // Store language in local storage
-      localStorage.setItem("appTheme", response.data.theme); // Store theme in local storage
+      localStorage.setItem("language", response.data.language);
+      localStorage.setItem("appTheme", response.data.theme);
     } catch (error) {
       console.error("Error fetching preferences:", error);
     }
