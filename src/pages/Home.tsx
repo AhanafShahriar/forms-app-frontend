@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import for navigation
+import Modal from "../components/Modal";
+import TicketForm from "../components/TicketForm";
 
 interface Author {
   id: string;
@@ -34,6 +36,7 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(false); // State to trigger refresh
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false); // State for modal visibility
   const navigate = useNavigate();
 
   const fetchTemplatesAndTags = async () => {
@@ -71,8 +74,12 @@ const HomePage: React.FC = () => {
     }
   }, [location.state]);
 
+  // Modal handling functions
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
   if (loading) {
-    return <div>Loading templates...</div>;
+    return <div className='mt-5 ml-5'>Loading templates...</div>;
   }
 
   if (error) {
@@ -134,10 +141,25 @@ const HomePage: React.FC = () => {
             key={tag.id}
             className='bg-blue-200 px-2 py-1 rounded cursor-pointer hover:bg-blue-300'
             onClick={() => navigate(`/search?tag=${tag.name}`)}>
-            {tag.name || "Unnamed Tag"}
+            {tag.name}
           </span>
         ))}
       </div>
+      <button
+        onClick={handleOpenModal}
+        className='mt-4 text-blue-500 underline'>
+        Create Support Ticket
+      </button>
+
+      {/* Modal with TicketForm */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}>
+        <TicketForm
+          templateTitle='Default Template'
+          pageLink={window.location.href}
+        />
+      </Modal>
     </div>
   );
 };
